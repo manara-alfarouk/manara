@@ -94,3 +94,29 @@ async function load(){
 async function qload(){
  const { data } = await supa.from("questions").select("*").order("created_at", { ascending: false });
  qlist.innerHTML = "";
+ (data || []).forEach(q => {
+  const d = el("div");
+  d.className = "post";
+  d.append(el("b", q.name), el("p", q.question));
+  if (q.reply) {
+   d.append(el("p", "ردك: " + q.reply));
+  } else {
+   const inp = el("textarea");
+   inp.placeholder = "اكتب ردك";
+   const btn = el("button", "إرسال الرد");
+   btn.onclick = async () => { if (inp.value.trim()) { await supa.from("questions").update({ reply: inp.value.trim() }).eq("id", q.id); qload(); } };
+   d.append(inp, btn);
+  }
+  d.append(delBtn("تمسح؟", async () => { await supa.from("questions").delete().eq("id", q.id); qload(); }));
+  qlist.appendChild(d);
+ });
+}
+async function logout(){
+ await supa.auth.signOut();
+ panel.style.display = "none";
+ form.style.display = "block";
+}
+supa.auth.getSession().then(({ data }) => { if (data.session) show(); });
+</script>
+</body>
+</html>
