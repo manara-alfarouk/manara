@@ -1,4 +1,4 @@
-[٢٧‏/١١، ٥:٥٥ ص] Instinct: <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
@@ -14,6 +14,7 @@ body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241
 .alertbar{max-width:480px;margin:8px auto;padding:10px 14px;background:rgba(255,45,74,.16);border:1px solid #ff2d4a;border-radius:12px;text-align:center;font-size:14px;display:none}
 .sect{max-width:480px;margin:18px auto 6px;padding:0 14px;font-size:16px;color:#e6b227;font-weight:700}
 .chat{max-width:480px;margin:0 auto;padding:6px 12px}
+.wrapc{display:flex;flex-direction:column}
 .bub{position:relative;max-width:88%;padding:10px 12px;margin:10px 0;border-radius:14px;font-size:15px;line-height:1.7;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 .in{background:#322b47;border:1px solid rgba(230,178,39,.25);border-bottom-right-radius:4px}
 .out{margin-right:auto;background:#4d446b;border:1px solid rgba(230,178,39,.45);border-bottom-left-radius:4px}
@@ -33,11 +34,23 @@ body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241
 .empty{text-align:center;color:rgba(255,255,255,.5);padding:26px 16px;font-size:14px}
 .tiles{max-width:480px;margin:20px auto;padding:0 12px}
 .tiles h2{margin:0 0 10px;font-size:16px;color:#e6b227}
-.tile{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border:1px solid rgba(230,178,39,.3);border-radius:14px;padding:14px;margin:10px 0;text-decoration:none;color:#fff;position:relative}
+.tile{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border:1px solid rgba(230,178,39,.3);border-radius:14px;padding:14px;margin:10px 0;color:#fff;position:relative;cursor:pointer}
 .tile .ic{font-size:26px}
 .tile b{display:block;font-size:16px}
 .tile span{font-size:12px;color:rgba(255,255,255,.6)}
+.tile .arrow{margin-right:auto;color:#e6b227;font-size:14px}
 .tile .newt{position:absolute;top:-7px;left:12px;background:#ff2d4a;color:#fff;font-size:11px;padding:2px 10px;border-radius:20px;box-shadow:0 0 12px rgba(255,45,74,.7);display:none}
+.panel{display:none;padding:0 12px}
+.panel.open{display:block}
+.sum{background:rgba(255,45,74,.14);border:1px solid #ff2d4a;border-radius:14px;padding:12px 14px;text-align:center;font-size:15px;margin:10px 0}
+.sub{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(230,178,39,.3);border-radius:14px;padding:12px 14px;margin:10px 0}
+.sub label{flex:1;font-size:16px;cursor:pointer}
+[٢٧‏/١١، ٦:٠٣ ص] Instinct: .sub input{width:22px;height:22px;accent-color:#e6b227}
+.sub .st{font-size:12px;color:#e6b227}
+.add{display:flex;gap:8px;margin-top:14px}
+.add input{flex:1;padding:10px;border:1px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;background:rgba(0,0,0,.25);color:#fff}
+.add button{padding:10px 16px;border:0;border-radius:10px;background:#ff2d4a;color:#fff;font-size:15px;font-weight:700}
+.tip{font-size:12px;color:rgba(255,255,255,.55);text-align:center;margin-top:14px;line-height:1.8}
 .foot{text-align:center;color:rgba(255,255,255,.5);font-size:12px;padding:22px 12px}
 </style>
 </head>
@@ -54,15 +67,25 @@ body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241
 <div class="chat wrapc" id="qlist"></div>
 <div class="ask">
 <h2>اسأل المشرفين</h2>
-[٢٧‏/١١، ٥:٥٥ ص] Instinct: <input id="qname" placeholder="اسمك الأول بس">
+<input id="qname" placeholder="اسمك الأول بس">
 <textarea id="qtext" placeholder="اكتب سؤالك"></textarea>
 <button onclick="ask()">إرسال السؤال</button>
 <p id="qmsg"></p>
 </div>
 <div class="tiles">
 <h2>🗂️ أقسام الموقع</h2>
-<a class="tile" href="homework.html"><span class="newt" id="nthw">جديد</span><span class="ic">📚</span><div><b>الواجب</b><span>واجبات كل المواد أول بأول</span></div></a>
-<a class="tile" href="study.html"><span class="ic">✅</span><div><b>متابعة المذاكرة</b><span>علّم على اللي ذاكرته النهارده</span></div></a>
+<div class="tile" onclick="togglePanel('hwpanel', this)"><span class="newt" id="nthw">جديد</span><span class="ic">📚</span><div><b>الواجب</b><span>واجبات كل المواد أول بأول</span></div><span class="arrow">▼</span></div>
+<div class="panel" id="hwpanel"><div class="chat wrapc" id="hwlist" style="padding:0"><p class="empty">جاري تحميل الواجبات...</p></div></div>
+<div class="tile" onclick="togglePanel('stpanel', this)"><span class="ic">✅</span><div><b>متابعة المذاكرة</b><span>علّم على اللي ذاكرته النهارده</span></div><span class="arrow">▼</span></div>
+<div class="panel" id="stpanel">
+<div class="sum" id="sumbox"></div>
+<div id="subbox"></div>
+<div class="add">
+<input id="newsub" placeholder="ضيف مادة تانية">
+<button onclick="addSub()">إضافة</button>
+</div>
+<p class="tip">علّم على المادة لما تذاكرها النهارده. العلامات بتتحفظ على موبايلك بس، ومحدش يقدر يشوفها غيرك. كل يوم بتبدأ من جديد.</p>
+</div>
 </div>
 <p class="foot">كل جديد بيظهر هنا أول بأول<br>عامل الصفحة: محمد أحمد عبد العزيز</p>
 <script>
@@ -72,36 +95,45 @@ function fmt(ts){ return new Date(ts).toLocaleString("ar-EG", { dateStyle: "medi
 function lastVisit(){ if (!window._lv) window._lv = localStorage.getItem("manara_lastvisit") || "2000-01-01"; return window._lv; }
 function stamp(){ localStorage.setItem("manara_lastvisit", new Date().toISOString()); }
 function newBadge(){ const n = el("span", "جديد"); n.className = "newb"; return n; }
-function shareBtn(title, body){
+function shareBtn(title, body, tag){
  const sh = el("a", "مشاركة 📤");
  sh.className = "share";
- sh.href = "https://wa.me/?text=" + encodeURIComponent("🏫 " + title + "\n\n" + body + "\n\n" + location.href.split("?")[0]);
+ sh.href = "https://wa.me/?text=" + encodeURIComponent(tag + title + "\n\n" + body + "\n\n" + location.href.split("?")[0]);
  sh.target = "_blank";
  return sh;
+}
+function togglePanel(id, tile){
+ const p = document.getElementById(id);
+ p.classList.toggle("open");
+ const a = tile.querySelector(".arrow");
+ if (a) a.textContent = p.classList.contains("open") ? "▲" : "▼";
+}
+function fillBub(d, p, tag, shareTag){
+ if (p.created_at > lastVisit()) d.appendChild(newBadge());
+ const h = el("h2", tag + p.title);
+ const b = el("p", p.body);
+ const sm = el("small", fmt(p.created_at));
+ if (p.media_url) {
+  const ext = p.media_url.split(".").pop().toLowerCase();
+  let m;
+  if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) { m = el("img"); m.src = p.media_url; }
+  else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = el("video"); m.src = p.media_url; m.controls = true; }
+  else { m = el("audio"); m.src = p.media_url; m.controls = true; }
+  m.className = "media";
+  d.append(h, m, b, sm, shareBtn(p.title, p.body, shareTag));
+[٢٧‏/١١، ٦:٠٣ ص] Instinct: } else d.append(h, b, sm, shareBtn(p.title, p.body, shareTag));
 }
 async function load(){
  const { data } = await supa.from("posts").select("*").neq("kind", "homework").order("created_at", { ascending: false }).limit(20);
  const w = document.getElementById("plist");
  w.innerHTML = "";
  if (!data || !data.length) { w.innerHTML = '<p class="empty">لسه مفيش أخبار. أول خبر هيظهر هنا.</p>'; return; }
- const lv = lastVisit();
  let fresh = 0;
  data.forEach(p => {
   const d = el("div");
   d.className = "bub " + (p.kind === "alert" ? "out" : "in");
-  if (p.created_at > lv) { d.appendChild(newBadge()); fresh++; }
-  const h = el("h2", (p.kind === "alert" ? "📢 " : "") + p.title);
-  const b = el("p", p.body);
-  const sm = el("small", fmt(p.created_at));
-  if (p.media_url) {
-   const ext = p.media_url.split(".").pop().toLowerCase();
-   let m;
-   if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) { m = el("img"); m.src = p.media_url; }
-   else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = el("video"); m.src = p.media_url; m.controls = true; }
-   else { m = el("audio"); m.src = p.media_url; m.controls = true; }
-   m.className = "media";
-   d.append(h, m, b, sm, shareBtn(p.title, p.body));
-  } else d.append(h, b, sm, shareBtn(p.title, p.body));
+  if (p.created_at > lastVisit()) fresh++;
+  fillBub(d, p, p.kind === "alert" ? "📢 " : "", p.kind === "alert" ? "📢 " : "🏫 ");
   w.appendChild(d);
  });
  if (fresh) { alertbar.textContent = "🔔 عندك " + fresh + " جديد من آخر مرة فتحت الموقع"; alertbar.style.display = "block"; }
@@ -128,16 +160,70 @@ async function qload(){
   qlist.appendChild(d);
  });
 }
-async function checkHw(){
- const { data } = await supa.from("posts").select("created_at").eq("kind", "homework").order("created_at", { ascending: false }).limit(1);
+async function hwload(){
+ const { data } = await supa.from("posts").select("*").eq("kind", "homework").order("created_at", { ascending: false }).limit(50);
+ const w = document.getElementById("hwlist");
+ w.innerHTML = "";
  if (data && data.length && data[0].created_at > lastVisit()) nthw.style.display = "inline-block";
+ if (!data || !data.length) { w.innerHTML = '<p class="empty">لسه مفيش واجب منشور. أول واجب هيظهر هنا.</p>'; return; }
+ data.forEach(p => {
+  const d = el("div");
+  d.className = "bub in";
+  fillBub(d, p, "📚 ", "📚 واجب: ");
+  w.appendChild(d);
+ });
+}
+const BASE = ["لغة عربية", "لغة إنجليزية", "رياضيات", "علوم", "دراسات اجتماعية"];
+function today(){ return new Date().toISOString().slice(0, 10); }
+function store(){ return JSON.parse(localStorage.getItem("manara_study") || "{}"); }
+function save(s){ localStorage.setItem("manara_study", JSON.stringify(s)); }
+function subjects(){ return BASE.concat(store()._subs || []); }
+function renderStudy(){
+ const s = store();
+ const d = today();
+ const box = document.getElementById("subbox");
+ box.innerHTML = "";
+ let done = 0;
+ const list = subjects();
+ list.forEach(name => {
+  const checked = s[name] && s[name] === d;
+  if (checked) done++;
+  const row = el("div");
+  row.className = "sub";
+  const cb = el("input");
+  cb.type = "checkbox";
+  cb.checked = !!checked;
+  cb.onchange = () => { const st = store(); if (cb.checked) st[name] = d; else delete st[name]; save(st); renderStudy(); };
+  const lb = el("label", name);
+  lb.onclick = () => { cb.checked = !cb.checked; cb.onchange(); };
+  row.append(cb, lb);
+  if (checked) { const st2 = el("span", "✔ النهارده"); st2.className = "st"; row.appendChild(st2); }
+  box.appendChild(row);
+ });
+ const sum = document.getElementById("sumbox");
+ if (done === list.length && list.length) sum.textContent = "🏆 بطل! ذاكرت كل المواد النهارده";
+ else if (done > 0) sum.textContent = "💪 ماشي حلو: ذاكرت " + done + " من " + list.length + " مواد النهارده";
+ else sum.textContent = "📖 لسه مذكرتش حاجة النهارده. يلا نبدأ!";
+}
+function addSub(){
+ const inp = document.getElementById("newsub");
+ const name = inp.value.trim();
+ if (!name) return;
+ const s = store();
+ s._subs = (s._subs || []);
+ if (!subjects().includes(name)) s._subs.push(name);
+ save(s);
+ inp.value = "";
+ renderStudy();
 }
 load();
-[٢٧‏/١١، ٥:٥٥ ص] Instinct: qload();
-checkHw();
+qload();
+hwload();
+renderStudy();
 stamp();
-setInterval(load, 30000);
+[٢٧‏/١١، ٦:٠٣ ص] Instinct: setInterval(load, 30000);
 setInterval(qload, 30000);
+setInterval(hwload, 30000);
 </script>
 </body>
 </html>
