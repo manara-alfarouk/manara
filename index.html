@@ -51,6 +51,11 @@ body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241
 .add input{flex:1;padding:10px;border:1px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;background:rgba(0,0,0,.25);color:#fff}
 .add button{padding:10px 16px;border:0;border-radius:10px;background:#ff2d4a;color:#fff;font-size:15px;font-weight:700}
 .tip{font-size:12px;color:rgba(255,255,255,.55);text-align:center;margin-top:14px;line-height:1.8}
+.pinned{max-width:480px;margin:10px auto;padding:12px 14px;background:linear-gradient(90deg,rgba(255,45,74,.22),rgba(230,178,39,.12));border:1px solid #ff2d4a;border-radius:14px;box-shadow:0 0 20px rgba(255,45,74,.25)}
+.pinned .pt{font-size:12px;font-weight:700;color:#ff8a9c;margin-bottom:4px}
+.pinned h2{margin:0 0 4px;font-size:16px;color:#e6b227}
+.pinned p{margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap}
+.pinned small{display:block;margin-top:6px;font-size:11px;color:rgba(255,255,255,.55)}
 .foot{text-align:center;color:rgba(255,255,255,.5);font-size:12px;padding:22px 12px}
 </style>
 </head>
@@ -61,6 +66,7 @@ body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241
 <p>الموقع الرسمي للطلاب وأولياء الأمور</p>
 </div>
 <div class="alertbar" id="alertbar"></div>
+<div id="pinned"></div>
 <div class="sect">📢 آخر الأخبار</div>
 <div class="chat wrapc" id="plist"><p class="empty">جاري تحميل الأخبار...</p></div>
 <div class="sect" id="myqsect" style="display:none">💬 أسئلتي وردودها</div>
@@ -74,7 +80,7 @@ body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241
 </div>
 <div class="tiles">
 <h2>🗂️ أقسام الموقع</h2>
-<div class="tile" onclick="togglePanel('hwpanel', this)"><span class="newt" id="nthw">جديد</span><span class="ic">📚</span><div><b>الواجب</b><span>واجبات كل المواد أول بأول</span></div><span class="arrow">▼</span></div>
+<div class="tile" onclick="togglePanel('hwpanel', this)"><span class="newt" id="nthw">جديد</span><span class="ic">📚</span><div><b>المذاكرة والواجب</b><span>واجبات ومواد المذاكرة أول بأول</span></div><span class="arrow">▼</span></div>
 <div class="panel" id="hwpanel"><div class="chat wrapc" id="hwlist" style="padding:0"><p class="empty">جاري تحميل الواجبات...</p></div></div>
 <div class="tile" onclick="togglePanel('stpanel', this)"><span class="ic">✅</span><div><b>متابعة المذاكرة</b><span>علّم على اللي ذاكرته النهارده</span></div><span class="arrow">▼</span></div>
 <div class="panel" id="stpanel">
@@ -128,8 +134,20 @@ async function load(){
  const w = document.getElementById("plist");
  w.innerHTML = "";
  if (!data || !data.length) { w.innerHTML = '<p class="empty">لسه مفيش أخبار. أول خبر هيظهر هنا.</p>'; return; }
+ const pin = document.getElementById("pinned");
+ pin.innerHTML = "";
+ const top = data.find(p => p.kind === "alert");
+ if (top) {
+  const d = el("div");
+  d.className = "pinned";
+  const pt = el("div", "📌 خبر هام");
+  pt.className = "pt";
+  d.append(pt, el("h2", top.title), el("p", top.body), el("small", fmt(top.created_at)));
+  pin.appendChild(d);
+ }
  let fresh = 0;
  data.forEach(p => {
+  if (top && p.id === top.id) return;
   const d = el("div");
   d.className = "bub " + (p.kind === "alert" ? "out" : "in");
   if (p.created_at > lastVisit()) fresh++;
