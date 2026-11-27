@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+[٢٧‏/١١، ٥:٥٥ ص] Instinct: <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
@@ -6,26 +6,39 @@
 <title>مدارس منارة الفاروق عمر الخاصة</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body{margin:0;background:#f5f3fa;font-family:sans-serif}
-.head{background:#4d446b;text-align:center;padding:24px 12px;color:#fff}
-.head img{width:100px;height:100px;border-radius:50%;border:3px solid #e6b227}
-.head h1{font-size:20px;margin:10px 0 4px}
+body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241f33;background-image:radial-gradient(circle at 85% 8%,rgba(230,178,39,.16),transparent 42%),radial-gradient(circle at 8% 35%,rgba(255,45,74,.13),transparent 45%),linear-gradient(165deg,#241f33,#3b3352 55%,#241f33);background-attachment:fixed}
+.head{text-align:center;padding:30px 14px 16px}
+.head img{width:96px;height:96px;border-radius:50%;border:3px solid #e6b227;box-shadow:0 0 26px rgba(230,178,39,.45)}
+.head h1{font-size:21px;margin:10px 0 4px;color:#fff}
 .head p{margin:0;font-size:13px;color:#e6b227}
-.wrap{max-width:480px;margin:0 auto;padding:14px}
-.post{background:#fff;border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.post.alert{border-right:5px solid #e6b227}
-.post h2{margin:0 0 6px;font-size:17px;color:#4d446b}
-.post p{margin:0 0 8px;font-size:15px;color:#333;white-space:pre-wrap;line-height:1.7}
-.post small{color:#999;font-size:12px}
-.media{width:100%;border-radius:10px;margin:0 0 8px}
-.empty{text-align:center;color:#777;padding:40px 20px;font-size:15px}
-.ask input,.ask textarea{width:100%;box-sizing:border-box;padding:10px;margin:4px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}
-.ask button{width:100%;padding:11px;border:0;border-radius:8px;background:#4d446b;color:#fff;font-size:16px}
-.reply{background:#f5f3fa;border-radius:8px;padding:8px}
-.reply b{color:#1a7f4b}
-.share{display:inline-block;background:#25d366;color:#fff;text-decoration:none;padding:5px 12px;border-radius:8px;font-size:13px;margin-top:6px}
-#qmsg{text-align:center;font-size:14px;min-height:18px}
-.foot{text-align:center;color:#999;font-size:12px;padding:18px}
+.alertbar{max-width:480px;margin:8px auto;padding:10px 14px;background:rgba(255,45,74,.16);border:1px solid #ff2d4a;border-radius:12px;text-align:center;font-size:14px;display:none}
+.sect{max-width:480px;margin:18px auto 6px;padding:0 14px;font-size:16px;color:#e6b227;font-weight:700}
+.chat{max-width:480px;margin:0 auto;padding:6px 12px}
+.bub{position:relative;max-width:88%;padding:10px 12px;margin:10px 0;border-radius:14px;font-size:15px;line-height:1.7;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.in{background:#322b47;border:1px solid rgba(230,178,39,.25);border-bottom-right-radius:4px}
+.out{margin-right:auto;background:#4d446b;border:1px solid rgba(230,178,39,.45);border-bottom-left-radius:4px}
+.bub h2{margin:0 0 4px;font-size:16px;color:#e6b227}
+.bub p{margin:0;white-space:pre-wrap}
+.bub small{display:block;margin-top:6px;font-size:11px;color:rgba(255,255,255,.55)}
+.bub .rep{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(230,178,39,.4);color:#ffe9ad}
+.bub .rep b{color:#e6b227}
+.media{width:100%;border-radius:10px;margin:6px 0}
+.newb{display:inline-block;background:#ff2d4a;color:#fff;font-size:11px;padding:2px 9px;border-radius:20px;margin-bottom:5px;box-shadow:0 0 12px rgba(255,45,74,.6)}
+.share{display:inline-block;margin-top:6px;background:#25d366;color:#fff;text-decoration:none;font-size:12px;padding:4px 10px;border-radius:20px}
+.ask{max-width:452px;margin:14px auto;padding:14px;background:rgba(255,255,255,.06);border:1px solid rgba(230,178,39,.3);border-radius:14px}
+.ask h2{margin:0 0 8px;font-size:16px;color:#e6b227}
+.ask input,.ask textarea{width:100%;box-sizing:border-box;padding:10px;margin:4px 0;border:1px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;background:rgba(0,0,0,.25);color:#fff}
+.ask button{width:100%;padding:11px;border:0;border-radius:10px;background:#ff2d4a;color:#fff;font-size:16px;font-weight:700}
+#qmsg{text-align:center;font-size:14px;min-height:18px;color:#e6b227}
+.empty{text-align:center;color:rgba(255,255,255,.5);padding:26px 16px;font-size:14px}
+.tiles{max-width:480px;margin:20px auto;padding:0 12px}
+.tiles h2{margin:0 0 10px;font-size:16px;color:#e6b227}
+.tile{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border:1px solid rgba(230,178,39,.3);border-radius:14px;padding:14px;margin:10px 0;text-decoration:none;color:#fff;position:relative}
+.tile .ic{font-size:26px}
+.tile b{display:block;font-size:16px}
+.tile span{font-size:12px;color:rgba(255,255,255,.6)}
+.tile .newt{position:absolute;top:-7px;left:12px;background:#ff2d4a;color:#fff;font-size:11px;padding:2px 10px;border-radius:20px;box-shadow:0 0 12px rgba(255,45,74,.7);display:none}
+.foot{text-align:center;color:rgba(255,255,255,.5);font-size:12px;padding:22px 12px}
 </style>
 </head>
 <body>
@@ -34,73 +47,95 @@ body{margin:0;background:#f5f3fa;font-family:sans-serif}
 <h1>مدارس منارة الفاروق عمر الخاصة</h1>
 <p>الموقع الرسمي للطلاب وأولياء الأمور</p>
 </div>
-<div class="wrap" id="plist">
-<p class="empty">جاري تحميل الأخبار...</p>
-</div>
-<div class="wrap">
-<div class="post ask">
+<div class="alertbar" id="alertbar"></div>
+<div class="sect">📢 آخر الأخبار</div>
+<div class="chat wrapc" id="plist"><p class="empty">جاري تحميل الأخبار...</p></div>
+<div class="sect">💬 أسئلة وردود المشرفين</div>
+<div class="chat wrapc" id="qlist"></div>
+<div class="ask">
 <h2>اسأل المشرفين</h2>
-<input id="qname" placeholder="اسمك الأول بس">
+[٢٧‏/١١، ٥:٥٥ ص] Instinct: <input id="qname" placeholder="اسمك الأول بس">
 <textarea id="qtext" placeholder="اكتب سؤالك"></textarea>
 <button onclick="ask()">إرسال السؤال</button>
 <p id="qmsg"></p>
 </div>
-<div id="qlist"></div>
+<div class="tiles">
+<h2>🗂️ أقسام الموقع</h2>
+<a class="tile" href="homework.html"><span class="newt" id="nthw">جديد</span><span class="ic">📚</span><div><b>الواجب</b><span>واجبات كل المواد أول بأول</span></div></a>
+<a class="tile" href="study.html"><span class="ic">✅</span><div><b>متابعة المذاكرة</b><span>علّم على اللي ذاكرته النهارده</span></div></a>
 </div>
-<p class="foot">كل جديد بيظهر هنا أول بأول</p>
+<p class="foot">كل جديد بيظهر هنا أول بأول<br>عامل الصفحة: محمد أحمد عبد العزيز</p>
 <script>
 const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
 function el(t, c){ const e = document.createElement(t); if (c !== undefined) e.textContent = c; return e; }
+function fmt(ts){ return new Date(ts).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }); }
+function lastVisit(){ if (!window._lv) window._lv = localStorage.getItem("manara_lastvisit") || "2000-01-01"; return window._lv; }
+function stamp(){ localStorage.setItem("manara_lastvisit", new Date().toISOString()); }
+function newBadge(){ const n = el("span", "جديد"); n.className = "newb"; return n; }
+function shareBtn(title, body){
+ const sh = el("a", "مشاركة 📤");
+ sh.className = "share";
+ sh.href = "https://wa.me/?text=" + encodeURIComponent("🏫 " + title + "\n\n" + body + "\n\n" + location.href.split("?")[0]);
+ sh.target = "_blank";
+ return sh;
+}
 async function load(){
-  const { data } = await supa.from("posts").select("*").order("created_at", { ascending: false });
-  const w = document.getElementById("plist");
-  w.innerHTML = "";
-  if (!data || !data.length) { w.innerHTML = '<p class="empty">لسه مفيش أخبار. أول خبر هيظهر هنا.</p>'; return; }
-  data.forEach(p => {
-   const d = el("div");
-   d.className = "post" + (p.kind === "alert" ? " alert" : "");
-   const h = el("h2", (p.kind === "alert" ? "📢 " : "") + p.title);
-   const b = el("p", p.body);
-   const sm = el("small", new Date(p.created_at).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }));
-   const sh = el("a", "مشاركة 📤");
-   sh.className = "share";
-   sh.href = "https://wa.me/?text=" + encodeURIComponent("🏫 " + p.title + "\n\n" + p.body + "\n\n" + location.href.split("?")[0]);
-   sh.target = "_blank";
-   if (p.media_url) {
-    const ext = p.media_url.split(".").pop().toLowerCase();
-    let m;
-    if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) { m = el("img"); m.src = p.media_url; }
-    else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = el("video"); m.src = p.media_url; m.controls = true; }
-    else { m = el("audio"); m.src = p.media_url; m.controls = true; }
-    m.className = "media";
-    d.append(h, m, b, sm, sh);
-   } else d.append(h, b, sm, sh);
-   w.appendChild(d);
-  });
+ const { data } = await supa.from("posts").select("*").neq("kind", "homework").order("created_at", { ascending: false }).limit(20);
+ const w = document.getElementById("plist");
+ w.innerHTML = "";
+ if (!data || !data.length) { w.innerHTML = '<p class="empty">لسه مفيش أخبار. أول خبر هيظهر هنا.</p>'; return; }
+ const lv = lastVisit();
+ let fresh = 0;
+ data.forEach(p => {
+  const d = el("div");
+  d.className = "bub " + (p.kind === "alert" ? "out" : "in");
+  if (p.created_at > lv) { d.appendChild(newBadge()); fresh++; }
+  const h = el("h2", (p.kind === "alert" ? "📢 " : "") + p.title);
+  const b = el("p", p.body);
+  const sm = el("small", fmt(p.created_at));
+  if (p.media_url) {
+   const ext = p.media_url.split(".").pop().toLowerCase();
+   let m;
+   if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) { m = el("img"); m.src = p.media_url; }
+   else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = el("video"); m.src = p.media_url; m.controls = true; }
+   else { m = el("audio"); m.src = p.media_url; m.controls = true; }
+   m.className = "media";
+   d.append(h, m, b, sm, shareBtn(p.title, p.body));
+  } else d.append(h, b, sm, shareBtn(p.title, p.body));
+  w.appendChild(d);
+ });
+ if (fresh) { alertbar.textContent = "🔔 عندك " + fresh + " جديد من آخر مرة فتحت الموقع"; alertbar.style.display = "block"; }
 }
 async function ask(){
  qmsg.textContent = "";
-  if (!qname.value.trim() || !qtext.value.trim()) { qmsg.textContent = "اكتب اسمك وسؤالك الأول"; return; }
-  const { error } = await supa.from("questions").insert({ name: qname.value.trim(), question: qtext.value.trim() });
-  if (error) { qmsg.textContent = "السؤال ماتبعتش، جرب تاني"; return; }
-  qname.value = ""; qtext.value = "";
-  qmsg.textContent = "وصل! الرد هيظهر هنا";
+ if (!qname.value.trim() || !qtext.value.trim()) { qmsg.textContent = "اكتب اسمك وسؤالك الأول"; return; }
+ const { error } = await supa.from("questions").insert({ name: qname.value.trim(), question: qtext.value.trim() });
+ if (error) { qmsg.textContent = "السؤال ماتبعتش، جرب تاني"; return; }
+ qname.value = ""; qtext.value = "";
+ qmsg.textContent = "وصل! الرد هيظهر هنا";
 }
 async function qload(){
- const { data } = await supa.from("questions").select("*").not("reply", "is", null).order("created_at", { ascending: false });
+ const { data } = await supa.from("questions").select("*").not("reply", "is", null).order("created_at", { ascending: false }).limit(20);
  qlist.innerHTML = "";
  (data || []).forEach(q => {
   const d = el("div");
-  d.className = "post";
+  d.className = "bub in";
+  if (q.created_at > lastVisit()) d.appendChild(newBadge());
   const r = el("p");
-  r.className = "reply";
+  r.className = "rep";
   r.append(el("b", "رد المشرفين: "), q.reply);
   d.append(el("h2", q.name + " بيسأل:"), el("p", q.question), r);
   qlist.appendChild(d);
  });
 }
+async function checkHw(){
+ const { data } = await supa.from("posts").select("created_at").eq("kind", "homework").order("created_at", { ascending: false }).limit(1);
+ if (data && data.length && data[0].created_at > lastVisit()) nthw.style.display = "inline-block";
+}
 load();
-qload();
+[٢٧‏/١١، ٥:٥٥ ص] Instinct: qload();
+checkHw();
+stamp();
 setInterval(load, 30000);
 setInterval(qload, 30000);
 </script>
