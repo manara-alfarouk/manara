@@ -3,57 +3,100 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>دخول القائد</title>
+<title>منطقة القائد</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#4d446b;font-family:sans-serif}
-.card{background:#ffffff;border-radius:16px;padding:28px 22px;width:320px;text-align:center}
-img{width:110px;height:110px;border-radius:50%}
-h1{font-size:20px;color:#4d446b;margin:12px 0 4px}
-p.sub{color:#666666;font-size:14px;margin:0 0 18px}
-input{width:100%;box-sizing:border-box;padding:12px;margin:6px 0;border:1px solid #dddddd;border-radius:8px;font-size:16px}
-button{width:100%;padding:12px;border:0;border-radius:8px;background:#e6b227;color:#251f21;font-size:16px;font-weight:bold;cursor:pointer}
-.msg{margin-top:12px;font-size:14px;min-height:20px}
+body{margin:0;background:#4d446b;font-family:sans-serif;padding:14px}
+.card{background:#fff;border-radius:14px;padding:18px;max-width:420px;margin:0 auto;text-align:center}
+img{width:80px;height:80px;border-radius:50%}
+h1{font-size:19px;color:#4d446b;margin:6px 0 2px}
+input,textarea,select{width:100%;box-sizing:border-box;padding:10px;margin:4px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}
+button{width:100%;padding:11px;border:0;border-radius:8px;background:#e6b227;font-size:16px;font-weight:bold}
+#msg{min-height:18px;font-size:14px;margin-top:6px}
 .err{color:#c00000}.ok{color:#1a7f4b}
-#panel{display:none}
+#panel{display:none;text-align:right}
+.post{border:1px solid #eee;border-radius:8px;padding:8px;margin:6px 0;font-size:14px}
+.post b{color:#4d446b}
+.post p{margin:4px 0;white-space:pre-wrap}
+.post small{color:#999}
+.del{width:auto;padding:3px 10px;font-size:12px;background:#c00000;color:#fff}
+h2{font-size:15px;color:#4d446b;margin:12px 0 4px}
 </style>
 </head>
 <body>
 <div class="card">
 <img src="IMG-20261127-WA0036.jpg" alt="لوجو المدرسة">
 <h1>منطقة القائد</h1>
-<p class="sub">مدارس منارة الفاروق عمر الخاصة</p>
 <div id="form">
-<input id="email" type="email" placeholder="الإيميل" dir="ltr">
+<input id="email" type="email" placeholder="الإيميل">
 <input id="pass" type="password" placeholder="كلمة السر">
 <button onclick="login()">دخول</button>
 </div>
 <div id="panel">
-<p class="ok">أهلاً يا قائد</p>
-<p id="who"></p>
-<button onclick="logout()">خروج</button>
+<input id="ptitle" placeholder="عنوان الخبر">
+<select id="kind">
+<option value="news">خبر</option>
+<option value="alert">تنبيه مهم</option>
+</select>
+<textarea id="pbody" placeholder="التفاصيل" rows="4"></textarea>
+<button onclick="publish()">نشر للطلاب</button>
+<h2>المنشورات الحالية</h2>
+<div id="plist"></div>
+<button onclick="logout()" style="background:#4d446b;color:#fff">خروج</button>
 </div>
-<p class="msg err" id="msg"></p>
+<p id="msg" class="err"></p>
 </div>
+<p style="text-align:center;font-size:12px;color:#e6b227">عامل الصفحة: محمد أحمد عبد العزيز</p>
 <script>
 const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
 async function login(){
-  msg.textContent = "";
-  const { data, error } = await supa.auth.signInWithPassword({ email: email.value, password: pass.value });
-  if (error) { msg.textContent = "الإيميل أو كلمة السر غلط"; return; }
-  show(data.user);
+ msg.textContent = "";
+ const { error } = await supa.auth.signInWithPassword({ email: email.value, password: pass.value });
+ if (error) { msg.textContent = "الإيميل أو كلمة السر غلط"; return; }
+ show();
 }
-function show(u){
-  form.style.display = "none";
-  panel.style.display = "block";
-  who.textContent = u.email;
+function show(){
+ form.style.display = "none";
+ panel.style.display = "block";
+ load();
+}
+async function publish(){
+ msg.className = "err";
+ msg.textContent = "";
+ if (!ptitle.value.trim() || !pbody.value.trim()) { msg.textContent = "اكتب العنوان والتفاصيل"; return; }
+ const { error } = await supa.from("posts").insert({ title: ptitle.value.trim(), body: pbody.value.trim(), kind: kind.value });
+ if (error) { msg.textContent = "حصل خطأ: " + error.message; return; }
+ ptitle.value = ""; pbody.value = "";
+ msg.className = "ok";
+ msg.textContent = "اتنشر! شوفه في صفحة الطلاب";
+ load();
+}
+async function load(){
+ const { data } = await supa.from("posts").select("*").order("created_at", { ascending: false });
+ plist.innerHTML = "";
+ (data || []).forEach(p => {
+  const d = document.createElement("div");
+  d.className = "post";
+  const h = document.createElement("b");
+  h.textContent = p.title;
+  const b = document.createElement("p");
+  b.textContent = p.body;
+  const s = document.createElement("small");
+  s.textContent = new Date(p.created_at).toLocaleString("ar-EG");
+  const del = document.createElement("button");
+  del.textContent = "مسح";
+  del.className = "del";
+  del.onclick = async () => { if (confirm("تمسح الخبر ده؟")) { await supa.from("posts").delete().eq("id", p.id); load(); } };
+  d.append(h, b, s, del);
+  plist.appendChild(d);
+ });
 }
 async function logout(){
-  await supa.auth.signOut();
-  panel.style.display = "none";
-  form.style.display = "block";
+ await supa.auth.signOut();
+ panel.style.display = "none";
+ form.style.display = "block";
 }
-supa.auth.getSession().then(({ data }) => { if (data.session) show(data.session.user); });
+supa.auth.getSession().then(({ data }) => { if (data.session) show(); });
 </script>
 </body>
 </html>
