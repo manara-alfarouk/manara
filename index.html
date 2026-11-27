@@ -19,6 +19,11 @@ body{margin:0;background:#f5f3fa;font-family:sans-serif}
 .post small{color:#999;font-size:12px}
 .media{width:100%;border-radius:10px;margin:0 0 8px}
 .empty{text-align:center;color:#777;padding:40px 20px;font-size:15px}
+.ask input,.ask textarea{width:100%;box-sizing:border-box;padding:10px;margin:4px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}
+.ask button{width:100%;padding:11px;border:0;border-radius:8px;background:#4d446b;color:#fff;font-size:16px}
+.reply{background:#f5f3fa;border-radius:8px;padding:8px}
+.reply b{color:#1a7f4b}
+#qmsg{text-align:center;font-size:14px;min-height:18px}
 .foot{text-align:center;color:#999;font-size:12px;padding:18px}
 </style>
 </head>
@@ -31,37 +36,68 @@ body{margin:0;background:#f5f3fa;font-family:sans-serif}
 <div class="wrap" id="plist">
 <p class="empty">جاري تحميل الأخبار...</p>
 </div>
+<div class="wrap">
+<div class="post ask">
+<h2>اسأل المشرفين</h2>
+<input id="qname" placeholder="اسمك الأول بس">
+<textarea id="qtext" placeholder="اكتب سؤالك"></textarea>
+<button onclick="ask()">إرسال السؤال</button>
+<p id="qmsg"></p>
+</div>
+<div id="qlist"></div>
+</div>
 <p class="foot">كل جديد بيظهر هنا أول بأول</p>
 <script>
 const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
+function el(t, c){ const e = document.createElement(t); if (c !== undefined) e.textContent = c; return e; }
 async function load(){
   const { data } = await supa.from("posts").select("*").order("created_at", { ascending: false });
   const w = document.getElementById("plist");
   w.innerHTML = "";
   if (!data || !data.length) { w.innerHTML = '<p class="empty">لسه مفيش أخبار. أول خبر هيظهر هنا.</p>'; return; }
   data.forEach(p => {
-    const d = document.createElement("div");
-    d.className = "post" + (p.kind === "alert" ? " alert" : "");
-    const h = document.createElement("h2");
-    h.textContent = (p.kind === "alert" ? "📢 " : "") + p.title;
-    const b = document.createElement("p");
-    b.textContent = p.body;
-    const s = document.createElement("small");
-    s.textContent = new Date(p.created_at).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
-    if (p.media_url) {
-      const ext = p.media_url.split(".").pop().toLowerCase();
-      let m;
-      if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) { m = document.createElement("img"); m.src = p.media_url; }
-      else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = document.createElement("video"); m.src = p.media_url; m.controls = true; }
-      else { m = document.createElement("audio"); m.src = p.media_url; m.controls = true; }
-      m.className = "media";
-      d.append(h, m, b, s);
-    } else d.append(h, b, s);
-    w.appendChild(d);
+   const d = el("div");
+   d.className = "post" + (p.kind === "alert" ? " alert" : "");
+   const h = el("h2", (p.kind === "alert" ? "📢 " : "") + p.title);
+   const b = el("p", p.body);
+   const sm = el("small", new Date(p.created_at).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }));
+   if (p.media_url) {
+    const ext = p.media_url.split(".").pop().toLowerCase();
+    let m;
+    if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) { m = el("img"); m.src = p.media_url; }
+    else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = el("video"); m.src = p.media_url; m.controls = true; }
+    else { m = el("audio"); m.src = p.media_url; m.controls = true; }
+    m.className = "media";
+    d.append(h, m, b, sm);
+   } else d.append(h, b, sm);
+   w.appendChild(d);
   });
 }
+async function ask(){
+ qmsg.textContent = "";
+  if (!qname.value.trim() || !qtext.value.trim()) { qmsg.textContent = "اكتب اسمك وسؤالك الأول"; return; }
+  const { error } = await supa.from("questions").insert({ name: qname.value.trim(), question: qtext.value.trim() });
+  if (error) { qmsg.textContent = "السؤال ماتبعتش، جرب تاني"; return; }
+  qname.value = ""; qtext.value = "";
+  qmsg.textContent = "وصل! الرد هيظهر هنا";
+}
+async function qload(){
+ const { data } = await supa.from("questions").select("*").not("reply", "is", null).order("created_at", { ascending: false });
+ qlist.innerHTML = "";
+  (data || []).forEach(q => {
+  const d = el("div");
+  d.className = "post";
+  const r = el("p");
+  r.className = "reply";
+  r.append(el("b", "رد المشرفين: "), q.reply);
+  d.append(el("h2", q.name + " بيسأل:"), el("p", q.question), r);
+  qlist.appendChild(d);
+ });
+}
 load();
+qload();
 setInterval(load, 30000);
+setInterval(qload, 30000);
 </script>
 </body>
 </html>
