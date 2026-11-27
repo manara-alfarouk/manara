@@ -23,6 +23,7 @@ body{margin:0;background:#f5f3fa;font-family:sans-serif}
 .ask button{width:100%;padding:11px;border:0;border-radius:8px;background:#4d446b;color:#fff;font-size:16px}
 .reply{background:#f5f3fa;border-radius:8px;padding:8px}
 .reply b{color:#1a7f4b}
+.share{display:inline-block;background:#25d366;color:#fff;text-decoration:none;padding:5px 12px;border-radius:8px;font-size:13px;margin-top:6px}
 #qmsg{text-align:center;font-size:14px;min-height:18px}
 .foot{text-align:center;color:#999;font-size:12px;padding:18px}
 </style>
@@ -61,6 +62,10 @@ async function load(){
    const h = el("h2", (p.kind === "alert" ? "📢 " : "") + p.title);
    const b = el("p", p.body);
    const sm = el("small", new Date(p.created_at).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" }));
+   const sh = el("a", "مشاركة 📤");
+   sh.className = "share";
+   sh.href = "https://wa.me/?text=" + encodeURIComponent("🏫 " + p.title + "\n\n" + p.body + "\n\n" + location.href.split("?")[0]);
+   sh.target = "_blank";
    if (p.media_url) {
     const ext = p.media_url.split(".").pop().toLowerCase();
     let m;
@@ -68,8 +73,8 @@ async function load(){
     else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = el("video"); m.src = p.media_url; m.controls = true; }
     else { m = el("audio"); m.src = p.media_url; m.controls = true; }
     m.className = "media";
-    d.append(h, m, b, sm);
-   } else d.append(h, b, sm);
+    d.append(h, m, b, sm, sh);
+   } else d.append(h, b, sm, sh);
    w.appendChild(d);
   });
 }
@@ -84,7 +89,7 @@ async function ask(){
 async function qload(){
  const { data } = await supa.from("questions").select("*").not("reply", "is", null).order("created_at", { ascending: false });
  qlist.innerHTML = "";
-  (data || []).forEach(q => {
+ (data || []).forEach(q => {
   const d = el("div");
   d.className = "post";
   const r = el("p");
