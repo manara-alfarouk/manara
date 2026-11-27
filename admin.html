@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
@@ -65,7 +65,7 @@ button{width:100%;padding:11px;border:0;border-radius:10px;background:linear-gra
 <script>
 const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
 function el(t, c){ const e = document.createElement(t); if (c !== undefined) e.textContent = c; return e; }
-[٢٧‏/١١، ٦:١٢ ص] Instinct: function delBtn(q, fn){ const d = el("button", "مسح"); d.className = "del"; d.onclick = async () => { if (confirm(q)) { await fn(); } }; return d; }
+[٢٧‏/١١، ٦:٢٨ ص] Instinct: function delBtn(q, fn){ const d = el("button", "مسح"); d.className = "del"; d.onclick = async () => { if (confirm(q)) { await fn(); } }; return d; }
 async function login(){
  msg.textContent = "";
  const { error } = await supa.auth.signInWithPassword({ email: email.value, password: pass.value });
