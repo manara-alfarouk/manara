@@ -55,7 +55,17 @@ button{width:100%;padding:11px;border:0;border-radius:10px;background:linear-gra
 <button onclick="publish()">نشر للطلاب</button>
 <h2>طلبات الطلاب</h2>
 <div id="qlist"></div>
-<h2>المنشورات</h2>function delBtn(q, fn){ const d = el("button", "مسح"); d.className = "del"; d.onclick = async () => { if (confirm(q)) { await fn(); } }; return d; }
+<h2>المنشورات</h2>
+<div id="plist"></div>
+<button class="outbtn" onclick="logout()">خروج</button>
+</div>
+<p id="msg" class="err"></p>
+</div>
+<p class="foot">عامل الصفحة: محمد أحمد عبد العزيز</p>
+<script>
+const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
+function el(t, c){ const e = document.createElement(t); if (c !== undefined) e.textContent = c; return e; }
+function delBtn(q, fn){ const d = el("button", "مسح"); d.className = "del"; d.onclick = async () => { if (confirm(q)) { await fn(); } }; return d; }
 async function login(){
  msg.textContent = "";
  const { error } = await supa.auth.signInWithPassword({ email: email.value, password: pass.value });
@@ -153,13 +163,3 @@ supa.auth.getSession().then(({ data }) => { if (data.session) show(); });
 </script>
 </body>
 </html>
-<div id="plist"></div>
-<button class="outbtn" onclick="logout()">خروج</button>
-</div>
-<p id="msg" class="err"></p>
-</div>
-<p class="foot">عامل الصفحة: محمد أحمد عبد العزيز</p>
-<script>
-const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
-function el(t, c){ const e = document.createElement(t); if (c !== undefined) e.textContent = c; return e; }
- 
