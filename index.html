@@ -17,6 +17,7 @@ body{margin:0;background:#f5f3fa;font-family:sans-serif}
 .post h2{margin:0 0 6px;font-size:17px;color:#4d446b}
 .post p{margin:0 0 8px;font-size:15px;color:#333;white-space:pre-wrap;line-height:1.7}
 .post small{color:#999;font-size:12px}
+.media{width:100%;border-radius:10px;margin:0 0 8px}
 .empty{text-align:center;color:#777;padding:40px 20px;font-size:15px}
 .foot{text-align:center;color:#999;font-size:12px;padding:18px}
 </style>
@@ -47,7 +48,15 @@ async function load(){
     b.textContent = p.body;
     const s = document.createElement("small");
     s.textContent = new Date(p.created_at).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
-    d.append(h, b, s);
+    if (p.media_url) {
+      const ext = p.media_url.split(".").pop().toLowerCase();
+      let m;
+      if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) { m = document.createElement("img"); m.src = p.media_url; }
+      else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = document.createElement("video"); m.src = p.media_url; m.controls = true; }
+      else { m = document.createElement("audio"); m.src = p.media_url; m.controls = true; }
+      m.className = "media";
+      d.append(h, m, b, s);
+    } else d.append(h, b, s);
     w.appendChild(d);
   });
 }
