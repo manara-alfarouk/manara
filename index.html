@@ -123,7 +123,7 @@ function fillBub(d, p, tag, shareTag){
   const ext = p.media_url.split(".").pop().toLowerCase();
   let m;
   if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) { m = el("img"); m.src = p.media_url; }
-  else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = el("video"); m.src = p.media_url; m.controls = true; }
+  else if (["mp4", "webm", "mov", "m4v", "3gp", "3gpp", "mkv"].includes(ext)) { m = el("video"); m.src = p.media_url; m.controls = true; }
   else { m = el("audio"); m.src = p.media_url; m.controls = true; }
   m.className = "media";
   d.append(h, m, b, sm, shareBtn(p.title, p.body, shareTag));
