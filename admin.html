@@ -93,8 +93,7 @@ async function load(){
 }
 async function qload(){
  const { data } = await supa.from("questions").select("*").order("created_at", { ascending: false });
- qlist.innerHTML = "";
- (data || []).forEach(q => {
+ qlist.innerHTML = "";(data || []).forEach(q => {
   const d = el("div");
   d.className = "post";
   d.append(el("b", q.name), el("p", q.question));
@@ -120,3 +119,4 @@ supa.auth.getSession().then(({ data }) => { if (data.session) show(); });
 </script>
 </body>
 </html>
+ 
