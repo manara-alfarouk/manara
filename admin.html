@@ -103,6 +103,12 @@ button{width:100%;padding:11px;border:0;border-radius:10px;background:linear-gra
 <div class="sheetopt" onclick="addLink()"><span class="ic">🔗</span>لينك / موقع</div>
 </div>
 </div>
+<div id="done" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50;align-items:center;justify-content:center">
+<div style="background:#241f33;border:1px solid rgba(230,178,39,.5);border-radius:20px;padding:26px 40px;text-align:center">
+<div style="width:64px;height:64px;border-radius:50%;background:#25d366;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:34px;color:#fff">✓</div>
+<div style="font-size:18px;font-weight:700;color:#fff">تم الارسال</div>
+</div>
+</div>
 <p id="msg" class="err"></p>
 </div>
 <p class="foot">عامل الصفحة: محمد أحمد عبد العزيز</p>
@@ -150,34 +156,51 @@ function arabErr(m){
  if (l.includes("fetch") || l.includes("network") || l.includes("timeout")) return "النت قطع أثناء الرفع. حاول تاني على نت أحسن";
  return m;
 }
+function showDone(){
+ done.style.display = "flex";
+ setTimeout(() => { done.style.display = "none"; }, 2200);
+}
+let publishing = false;
 async function publish(){
+ if (publishing) return;
  msg.className = "err";
  msg.textContent = "";
  if (!ptitle.value.trim() || !pbody.value.trim()) { msg.textContent = "اكتب العنوان والتفاصيل"; return; }
  const f = file.files[0];
  if (f && f.size > 45000000) { msg.textContent = "الملف أكبر من 45 ميجا. صغّره أو ابعته كلينك من زرار 📎"; return; }
+ publishing = true;
  pubbtn.disabled = true;
- let url = null;
- if (f) {
-  msg.textContent = "جاري رفع الملف... استنى لحد ما يخلص";
-  let ext = "";
-  const dot = f.name.lastIndexOf(".");
-  if (dot > -1) ext = f.name.slice(dot + 1).toLowerCase();
-  else if (f.type && f.type.includes("/")) ext = f.type.split("/")[1];
-  if (!ext) ext = "bin";
-  const path = Date.now() + "." + ext;
-  const { error: e2 } = await supa.storage.from("media").upload(path, f);
-  if (e2) { pubbtn.disabled = false; msg.textContent = "الملف مترفعش: " + arabErr(e2.message); return; }
-  url = supa.storage.from("media").getPublicUrl(path).data.publicUrl;
+ try {
+  let url = null;
+  if (f) {
+   let ext = "";
+   const dot = f.name.lastIndexOf(".");
+   if (dot > -1) ext = f.name.slice(dot + 1).toLowerCase();
+   else if (f.type && f.type.includes("/")) ext = f.type.split("/")[1];
+   if (!ext) ext = "bin";
+   const path = Date.now() + "." + ext;
+   let e2 = null;
+   for (let i = 0; i < 5; i++) {
+    msg.textContent = i === 0 ? "جاري رفع الملف... استنى لحد ما يخلص" : "النت تقيلة، بحاول تاني (" + (i + 1) + " من 5)...";
+    const r = await supa.storage.from("media").upload(path, f, { upsert: true });
+    if (!r.error) { e2 = null; break; }
+    e2 = r.error;
+    await new Promise(rr => setTimeout(rr, 1500));
+   }
+   if (e2) { msg.textContent = "الملف مترفعش: " + arabErr(e2.message); return; }
+   url = supa.storage.from("media").getPublicUrl(path).data.publicUrl;
+  }
+  msg.textContent = "جاري النشر...";
+  const { error } = await supa.from("posts").insert({ title: ptitle.value.trim(), body: pbody.value.trim(), kind: kind.value, media_url: url });
+  if (error) { msg.textContent = "حصل خطأ: " + error.message; return; }
+  ptitle.value = ""; pbody.value = ""; clearFile();
+  msg.textContent = "";
+  showDone();
+  load();
+ } finally {
+  publishing = false;
+  pubbtn.disabled = false;
  }
- msg.textContent = "جاري النشر...";
- const { error } = await supa.from("posts").insert({ title: ptitle.value.trim(), body: pbody.value.trim(), kind: kind.value, media_url: url });
- pubbtn.disabled = false;
- if (error) { msg.textContent = "حصل خطأ: " + error.message; return; }
- ptitle.value = ""; pbody.value = ""; clearFile();
- msg.className = "ok";
- msg.textContent = "اتنشر!";
- load();
 }
 async function load(){
  const { data } = await supa.from("posts").select("*").order("created_at", { ascending: false });
