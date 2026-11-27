@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
@@ -22,6 +22,14 @@ button{width:100%;padding:11px;border:0;border-radius:10px;background:linear-gra
 .del{width:auto;padding:4px 12px;background:#ff2d4a;color:#fff;font-size:13px;font-weight:400}
 .rep{width:auto;padding:8px 14px;background:#e6b227;color:#241f33;font-size:14px;font-weight:700}
 .tag{display:inline-block;font-size:11px;background:rgba(230,178,39,.2);color:#e6b227;border-radius:20px;padding:1px 8px;margin-right:6px}
+.thread{background:rgba(0,0,0,.2);border:1px solid rgba(230,178,39,.25);border-radius:14px;padding:10px;margin:10px 0}
+.tbub{max-width:92%;padding:8px 11px;margin:8px 0;border-radius:12px;font-size:14px;line-height:1.7}
+.tbub p{margin:0;white-space:pre-wrap}
+.tbub small{display:block;margin-top:4px;font-size:11px;color:rgba(255,255,255,.5)}
+.tin{background:#322b47;border:1px solid rgba(230,178,39,.25);border-bottom-right-radius:4px}
+.tout{margin-right:auto;background:#4d446b;border:1px solid rgba(230,178,39,.45);border-bottom-left-radius:4px}
+.tout b{color:#e6b227}
+.tname{font-size:13px;color:#e6b227;font-weight:700}
 .outbtn{background:#4d446b;border:1px solid rgba(230,178,39,.4)}
 .foot{text-align:center;color:#e6b227;font-size:12px;padding:16px}
 </style>
@@ -57,7 +65,7 @@ button{width:100%;padding:11px;border:0;border-radius:10px;background:linear-gra
 <script>
 const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
 function el(t, c){ const e = document.createElement(t); if (c !== undefined) e.textContent = c; return e; }
-function delBtn(q, fn){ const d = el("button", "مسح"); d.className = "del"; d.onclick = async () => { if (confirm(q)) { await fn(); } }; return d; }
+[٢٧‏/١١، ٦:١٢ ص] Instinct: function delBtn(q, fn){ const d = el("button", "مسح"); d.className = "del"; d.onclick = async () => { if (confirm(q)) { await fn(); } }; return d; }
 async function login(){
  msg.textContent = "";
  const { error } = await supa.auth.signInWithPassword({ email: email.value, password: pass.value });
@@ -103,23 +111,46 @@ async function load(){
  });
 }
 async function qload(){
- const { data } = await supa.from("questions").select("*").order("created_at", { ascending: false });
+ const { data, error } = await supa.from("questions").select("*").order("created_at", { ascending: false });
  qlist.innerHTML = "";
- (data || []).forEach(q => {
+ if (error) { qlist.appendChild(el("p", "الطلبات ماتحملتش، اعمل تحديث للصفحة")); return; }
+ if (!data || !data.length) { qlist.appendChild(el("p", "لسه مفيش طلبات من الطلاب")); return; }
+ data.forEach(q => {
   const d = el("div");
-  d.className = "post";
-  d.append(el("b", q.name), el("p", q.question));
+  d.className = "thread";
+  const nm = el("span", q.name);
+  nm.className = "tname";
+  const qb = el("div");
+  qb.className = "tbub tin";
+  qb.append(el("p", q.question), el("small", new Date(q.created_at).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" })));
+  d.append(nm, qb);
   if (q.reply) {
-   d.append(el("p", "ردك: " + q.reply));
+   const rb = el("div");
+   rb.className = "tbub tout";
+   const rp = el("p");
+   rp.append(el("b", "ردك: "), q.reply);
+   rb.append(rp);
+   d.append(rb);
   } else {
    const inp = el("textarea");
-   inp.placeholder = "اكتب ردك";
+   inp.placeholder = "اكتب ردك هنا";
    const btn = el("button", "إرسال الرد");
    btn.className = "rep";
-   btn.onclick = async () => { if (inp.value.trim()) { await supa.from("questions").update({ reply: inp.value.trim() }).eq("id", q.id); qload(); } };
-   d.append(inp, btn);
+   const st = el("p");
+   st.style.minHeight = "16px";
+   st.style.fontSize = "13px";
+   btn.onclick = async () => {
+    if (!inp.value.trim()) return;
+    btn.disabled = true;
+    st.textContent = "جاري الإرسال...";
+    const { error: e3 } = await supa.from("questions").update({ reply: inp.value.trim() }).eq("id", q.id);
+    btn.disabled = false;
+    if (e3) { st.textContent = "الرد ماتبعتش: " + e3.message; return; }
+    qload();
+   };
+   d.append(inp, btn, st);
   }
-  d.append(delBtn("تمسح؟", async () => { await supa.from("questions").delete().eq("id", q.id); qload(); }));
+  d.append(delBtn("تمسح السؤال ده؟", async () => { await supa.from("questions").delete().eq("id", q.id); qload(); }));
   qlist.appendChild(d);
  });
 }
