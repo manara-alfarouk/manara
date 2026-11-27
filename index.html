@@ -56,6 +56,7 @@ body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241
 .pinned h2{margin:0 0 4px;font-size:16px;color:#e6b227}
 .pinned p{margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap}
 .pinned small{display:block;margin-top:6px;font-size:11px;color:rgba(255,255,255,.55)}
+.qdel{display:inline-block;margin:2px 0 10px;padding:6px 14px;background:none;border:1px solid #ff2d4a;color:#ff8a9c;border-radius:10px;font-size:12px}
 .foot{text-align:center;color:rgba(255,255,255,.5);font-size:12px;padding:22px 12px}
 </style>
 </head>
@@ -180,7 +181,17 @@ function renderMyq(){
    r.append(el("p", "⏳ سؤالك وصل، الرد هيظهر هنا أول ما المشرفين يردوا"));
   }
   w.appendChild(r);
+  const del = el("button", "🗑 مسح سؤالي");
+  del.className = "qdel";
+  del.onclick = () => delMyq(m);
+  w.appendChild(del);
  });
+}
+async function delMyq(m){
+ if (!confirm("تمسح سؤالك نهائي؟")) return;
+ if (m.t) await supa.rpc("delete_my_question", { tk: m.t });
+ saveMyq(myq().filter(x => (m.t ? x.t !== m.t : x.ts !== m.ts)));
+ renderMyq();
 }
 async function ask(){
  qmsg.textContent = "";
