@@ -37,6 +37,8 @@ button{width:100%;padding:11px;border:0;border-radius:8px;background:#e6b227;fon
 <textarea id="pbody" placeholder="التفاصيل"></textarea>
 <input id="file" type="file" accept="image/*,video/*,audio/*">
 <button onclick="publish()">نشر للطلاب</button>
+<h2>طلبات الطلاب</h2>
+<div id="qlist"></div>
 <h2>المنشورات</h2>
 <div id="plist"></div>
 <button onclick="logout()" style="background:#4d446b;color:#fff">خروج</button>
@@ -46,6 +48,8 @@ button{width:100%;padding:11px;border:0;border-radius:8px;background:#e6b227;fon
 <p style="text-align:center;color:#e6b227">عامل الصفحة: محمد أحمد عبد العزيز</p>
 <script>
 const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
+function el(t, c){ const e = document.createElement(t); if (c !== undefined) e.textContent = c; return e; }
+function delBtn(q, fn){ const d = el("button", "مسح"); d.className = "del"; d.onclick = async () => { if (confirm(q)) { await fn(); } }; return d; }
 async function login(){
  msg.textContent = "";
  const { error } = await supa.auth.signInWithPassword({ email: email.value, password: pass.value });
@@ -56,6 +60,7 @@ function show(){
  form.style.display = "none";
  panel.style.display = "block";
  load();
+ qload();
 }
 async function publish(){
  msg.className = "err";
@@ -71,33 +76,21 @@ async function publish(){
  }
  const { error } = await supa.from("posts").insert({ title: ptitle.value.trim(), body: pbody.value.trim(), kind: kind.value, media_url: url });
  if (error) { msg.textContent = "حصل خطأ: " + error.message; return; }
- ptitle.value = ""; pbody.value = ""; file.value = "";
+ ptitle.value = ""; pbody.value = "";
  msg.className = "ok";
- msg.textContent = "اتنشر! شوفه في صفحة الطلاب";
+ msg.textContent = "اتنشر!";
  load();
 }
 async function load(){
  const { data } = await supa.from("posts").select("*").order("created_at", { ascending: false });
  plist.innerHTML = "";
  (data || []).forEach(p => {
-  const d = document.createElement("div");
+  const d = el("div");
   d.className = "post";
-  const h = document.createElement("b");
-  h.textContent = p.title;
-  const del = document.createElement("button");
-  del.textContent = "مسح";
-  del.className = "del";
-  del.onclick = async () => { if (confirm("تمسح الخبر ده؟")) { if (p.media_url) await supa.storage.from("media").remove([p.media_url.split("/media/")[1]]); await supa.from("posts").delete().eq("id", p.id); load(); } };
-  d.append(h, del);
+  d.append(el("b", p.title), delBtn("تمسح؟", async () => { if (p.media_url) await supa.storage.from("media").remove([p.media_url.split("/media/")[1]]); await supa.from("posts").delete().eq("id", p.id); load(); }));
   plist.appendChild(d);
  });
 }
-async function logout(){
- await supa.auth.signOut();
- panel.style.display = "none";
- form.style.display = "block";
-}
-supa.auth.getSession().then(({ data }) => { if (data.session) show(); });
-</script>
-</body>
-</html>
+async function qload(){
+ const { data } = await supa.from("questions").select("*").order("created_at", { ascending: false });
+ qlist.innerHTML = "";
