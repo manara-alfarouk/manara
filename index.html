@@ -187,10 +187,11 @@ async function ask(){
  if (!qname.value.trim() || !qtext.value.trim()) { qmsg.textContent = "اكتب اسمك وسؤالك الأول"; return; }
  const n = qname.value.trim();
  const q = qtext.value.trim();
- const { error } = await supa.from("questions").insert({ name: n, question: q });
+ const t = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+ const { error } = await supa.from("questions").insert({ name: n, question: q, token: t });
  if (error) { qmsg.textContent = "السؤال ماتبعتش، جرب تاني"; return; }
  const a = myq();
- a.push({ n: n, q: q, ts: new Date().toISOString(), r: null });
+ a.push({ t: t, n: n, q: q, ts: new Date().toISOString(), r: null });
  saveMyq(a);
  qname.value = ""; qtext.value = "";
  qmsg.textContent = "وصل! الرد هيظهر عندك هنا بس";
@@ -199,13 +200,14 @@ async function ask(){
 }
 async function syncReplies(){
  const a = myq();
- if (!a.length) return;
- const { data } = await supa.from("questions").select("name, question, reply").not("reply", "is", null).order("created_at", { ascending: false }).limit(100);
+ const tk = a.filter(m => !m.r && m.t).map(m => m.t);
+ if (!tk.length) return;
+ const { data } = await supa.rpc("get_my_questions", { tk: tk });
  if (!data) return;
  let changed = false;
  a.forEach(m => {
-  if (m.r) return;
-  const hit = data.find(row => row.name === m.n && row.question === m.q);
+  if (m.r || !m.t) return;
+  const hit = data.find(row => row.token === m.t);
   if (hit) { m.r = hit.reply; changed = true; }
  });
  if (changed) { saveMyq(a); renderMyq(); }
