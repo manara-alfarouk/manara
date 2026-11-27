@@ -1,15 +1,58 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>مدارس منارة الفاروق عمر الخاصة</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body { background: #4d446b; color: #ffffff; font-family: sans-serif; text-align: center; padding-top: 80px; }
-h1 { color: #e6b227; }
+body{margin:0;background:#f5f3fa;font-family:sans-serif}
+.head{background:#4d446b;text-align:center;padding:24px 12px;color:#fff}
+.head img{width:100px;height:100px;border-radius:50%;border:3px solid #e6b227}
+.head h1{font-size:20px;margin:10px 0 4px}
+.head p{margin:0;font-size:13px;color:#e6b227}
+.wrap{max-width:480px;margin:0 auto;padding:14px}
+.post{background:#fff;border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.post.alert{border-right:5px solid #e6b227}
+.post h2{margin:0 0 6px;font-size:17px;color:#4d446b}
+.post p{margin:0 0 8px;font-size:15px;color:#333;white-space:pre-wrap;line-height:1.7}
+.post small{color:#999;font-size:12px}
+.empty{text-align:center;color:#777;padding:40px 20px;font-size:15px}
+.foot{text-align:center;color:#999;font-size:12px;padding:18px}
 </style>
 </head>
 <body>
+<div class="head">
+<img src="IMG-20261127-WA0036.jpg" alt="لوجو المدرسة">
 <h1>مدارس منارة الفاروق عمر الخاصة</h1>
-<p>الموقع الرسمي قريبًا</p>
+<p>الموقع الرسمي للطلاب وأولياء الأمور</p>
+</div>
+<div class="wrap" id="plist">
+<p class="empty">جاري تحميل الأخبار...</p>
+</div>
+<p class="foot">كل جديد بيظهر هنا أول بأول</p>
+<script>
+const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
+async function load(){
+  const { data } = await supa.from("posts").select("*").order("created_at", { ascending: false });
+  const w = document.getElementById("plist");
+  w.innerHTML = "";
+  if (!data || !data.length) { w.innerHTML = '<p class="empty">لسه مفيش أخبار. أول خبر هيظهر هنا.</p>'; return; }
+  data.forEach(p => {
+    const d = document.createElement("div");
+    d.className = "post" + (p.kind === "alert" ? " alert" : "");
+    const h = document.createElement("h2");
+    h.textContent = (p.kind === "alert" ? "📢 " : "") + p.title;
+    const b = document.createElement("p");
+    b.textContent = p.body;
+    const s = document.createElement("small");
+    s.textContent = new Date(p.created_at).toLocaleString("ar-EG", { dateStyle: "medium", timeStyle: "short" });
+    d.append(h, b, s);
+    w.appendChild(d);
+  });
+}
+load();
+setInterval(load, 30000);
+</script>
 </body>
 </html>
