@@ -6,17 +6,24 @@
 <title>منطقة القائد</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body{margin:0;background:#4d446b;font-family:sans-serif;padding:14px}
-.card{background:#fff;border-radius:14px;padding:18px;max-width:420px;margin:0 auto;text-align:center}
-img{width:80px;height:80px;border-radius:50%}
-h1{font-size:19px;color:#4d446b;margin:6px 0 2px}
-input,textarea,select{width:100%;box-sizing:border-box;padding:10px;margin:4px 0;border:1px solid #ddd;border-radius:8px;font-size:16px}
-button{width:100%;padding:11px;border:0;border-radius:8px;background:#e6b227;font-size:16px}
+body{margin:0;font-family:sans-serif;min-height:100vh;padding:14px;box-sizing:border-box;color:#fff;background:#241f33;background-image:radial-gradient(circle at 85% 8%,rgba(230,178,39,.18),transparent 42%),radial-gradient(circle at 8% 35%,rgba(255,45,74,.15),transparent 45%),linear-gradient(165deg,#241f33,#3b3352 55%,#241f33);background-attachment:fixed}
+.card{background:rgba(50,43,71,.92);border:1px solid rgba(230,178,39,.35);border-radius:18px;padding:20px;max-width:440px;margin:0 auto;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+img{width:84px;height:84px;border-radius:50%;border:3px solid #e6b227;box-shadow:0 0 22px rgba(230,178,39,.45)}
+h1{font-size:20px;color:#e6b227;margin:8px 0 2px}
+h2{font-size:16px;color:#e6b227;margin:18px 0 8px;text-align:right}
+input,textarea,select{width:100%;box-sizing:border-box;padding:10px;margin:4px 0;border:1px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;background:rgba(0,0,0,.3);color:#fff}
+select option{color:#000}
+button{width:100%;padding:11px;border:0;border-radius:10px;background:linear-gradient(90deg,#ff2d4a,#e6b227);color:#fff;font-size:16px;font-weight:700}
 #msg{min-height:18px;font-size:14px;margin-top:6px}
-.err{color:#c00000}.ok{color:#1a7f4b}
+.err{color:#ff7a8c}.ok{color:#7be3a8}
 #panel{display:none;text-align:right}
-.post{border:1px solid #eee;padding:8px;margin:6px 0}
-.del{width:auto;padding:3px 10px;background:#c00000;color:#fff}
+.post{border:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.2);border-radius:10px;padding:10px;margin:8px 0;font-size:14px}
+.post p{margin:6px 0;white-space:pre-wrap}
+.del{width:auto;padding:4px 12px;background:#ff2d4a;color:#fff;font-size:13px;font-weight:400}
+.rep{width:auto;padding:8px 14px;background:#e6b227;color:#241f33;font-size:14px;font-weight:700}
+.tag{display:inline-block;font-size:11px;background:rgba(230,178,39,.2);color:#e6b227;border-radius:20px;padding:1px 8px;margin-right:6px}
+.outbtn{background:#4d446b;border:1px solid rgba(230,178,39,.4)}
+.foot{text-align:center;color:#e6b227;font-size:12px;padding:16px}
 </style>
 </head>
 <body>
@@ -29,10 +36,11 @@ button{width:100%;padding:11px;border:0;border-radius:8px;background:#e6b227;fon
 <button onclick="login()">دخول</button>
 </div>
 <div id="panel">
-<input id="ptitle" placeholder="العنوان">
+<input id="ptitle" placeholder="العنوان (للواجب: اكتب المادة الأول)">
 <select id="kind">
 <option value="news">خبر</option>
 <option value="alert">تنبيه مهم</option>
+<option value="homework">واجب 📚</option>
 </select>
 <textarea id="pbody" placeholder="التفاصيل"></textarea>
 <input id="file" type="file" accept="image/*,video/*,audio/*">
@@ -41,11 +49,11 @@ button{width:100%;padding:11px;border:0;border-radius:8px;background:#e6b227;fon
 <div id="qlist"></div>
 <h2>المنشورات</h2>
 <div id="plist"></div>
-<button onclick="logout()" style="background:#4d446b;color:#fff">خروج</button>
+<button class="outbtn" onclick="logout()">خروج</button>
 </div>
 <p id="msg" class="err"></p>
 </div>
-<p style="text-align:center;color:#e6b227">عامل الصفحة: محمد أحمد عبد العزيز</p>
+<p class="foot">عامل الصفحة: محمد أحمد عبد العزيز</p>
 <script>
 const supa = supabase.createClient("https://dekyeekdugyzzgdunsjc.supabase.co", "sb_publishable_y41eQ-FcTonQTWDyBVbWSQ_vtgNbf1j");
 function el(t, c){ const e = document.createElement(t); if (c !== undefined) e.textContent = c; return e; }
@@ -62,6 +70,7 @@ function show(){
  load();
  qload();
 }
+const KNAMES = { news: "خبر", alert: "تنبيه", homework: "واجب" };
 async function publish(){
  msg.className = "err";
  msg.textContent = "";
@@ -87,13 +96,16 @@ async function load(){
  (data || []).forEach(p => {
   const d = el("div");
   d.className = "post";
-  d.append(el("b", p.title), delBtn("تمسح؟", async () => { if (p.media_url) await supa.storage.from("media").remove([p.media_url.split("/media/")[1]]); await supa.from("posts").delete().eq("id", p.id); load(); }));
+  const tag = el("span", KNAMES[p.kind] || "خبر");
+  tag.className = "tag";
+  d.append(tag, el("b", p.title), delBtn("تمسح؟", async () => { if (p.media_url) await supa.storage.from("media").remove([p.media_url.split("/media/")[1]]); await supa.from("posts").delete().eq("id", p.id); load(); }));
   plist.appendChild(d);
  });
 }
 async function qload(){
  const { data } = await supa.from("questions").select("*").order("created_at", { ascending: false });
- qlist.innerHTML = "";(data || []).forEach(q => {
+ qlist.innerHTML = "";
+ (data || []).forEach(q => {
   const d = el("div");
   d.className = "post";
   d.append(el("b", q.name), el("p", q.question));
@@ -103,6 +115,7 @@ async function qload(){
    const inp = el("textarea");
    inp.placeholder = "اكتب ردك";
    const btn = el("button", "إرسال الرد");
+   btn.className = "rep";
    btn.onclick = async () => { if (inp.value.trim()) { await supa.from("questions").update({ reply: inp.value.trim() }).eq("id", q.id); qload(); } };
    d.append(inp, btn);
   }
@@ -119,4 +132,3 @@ supa.auth.getSession().then(({ data }) => { if (data.session) show(); });
 </script>
 </body>
 </html>
- 
