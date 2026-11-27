@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
@@ -45,7 +45,7 @@ body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241
 .sum{background:rgba(255,45,74,.14);border:1px solid #ff2d4a;border-radius:14px;padding:12px 14px;text-align:center;font-size:15px;margin:10px 0}
 .sub{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.06);border:1px solid rgba(230,178,39,.3);border-radius:14px;padding:12px 14px;margin:10px 0}
 .sub label{flex:1;font-size:16px;cursor:pointer}
-[٢٧‏/١١، ٦:٠٣ ص] Instinct: .sub input{width:22px;height:22px;accent-color:#e6b227}
+[٢٧‏/١١، ٦:١٢ ص] Instinct: .sub input{width:22px;height:22px;accent-color:#e6b227}
 .sub .st{font-size:12px;color:#e6b227}
 .add{display:flex;gap:8px;margin-top:14px}
 .add input{flex:1;padding:10px;border:1px solid rgba(255,255,255,.2);border-radius:10px;font-size:16px;background:rgba(0,0,0,.25);color:#fff}
@@ -63,7 +63,7 @@ body{margin:0;font-family:sans-serif;color:#fff;min-height:100vh;background:#241
 <div class="alertbar" id="alertbar"></div>
 <div class="sect">📢 آخر الأخبار</div>
 <div class="chat wrapc" id="plist"><p class="empty">جاري تحميل الأخبار...</p></div>
-<div class="sect">💬 أسئلة وردود المشرفين</div>
+<div class="sect" id="myqsect" style="display:none">💬 أسئلتي وردودها</div>
 <div class="chat wrapc" id="qlist"></div>
 <div class="ask">
 <h2>اسأل المشرفين</h2>
@@ -120,8 +120,8 @@ function fillBub(d, p, tag, shareTag){
   else if (["mp4", "webm", "mov", "m4v"].includes(ext)) { m = el("video"); m.src = p.media_url; m.controls = true; }
   else { m = el("audio"); m.src = p.media_url; m.controls = true; }
   m.className = "media";
-  d.append(h, m, b, sm, shareBtn(p.title, p.body, shareTag));
-[٢٧‏/١١، ٦:٠٣ ص] Instinct: } else d.append(h, b, sm, shareBtn(p.title, p.body, shareTag));
+[٢٧‏/١١، ٦:١٢ ص] Instinct: d.append(h, m, b, sm, shareBtn(p.title, p.body, shareTag));
+ } else d.append(h, b, sm, shareBtn(p.title, p.body, shareTag));
 }
 async function load(){
  const { data } = await supa.from("posts").select("*").neq("kind", "homework").order("created_at", { ascending: false }).limit(20);
@@ -138,27 +138,59 @@ async function load(){
  });
  if (fresh) { alertbar.textContent = "🔔 عندك " + fresh + " جديد من آخر مرة فتحت الموقع"; alertbar.style.display = "block"; }
 }
+function myq(){ return JSON.parse(localStorage.getItem("manara_myq") || "[]"); }
+function saveMyq(a){ localStorage.setItem("manara_myq", JSON.stringify(a)); }
+function renderMyq(){
+ const a = myq();
+ const w = document.getElementById("qlist");
+ const sect = document.getElementById("myqsect");
+ w.innerHTML = "";
+ if (!a.length) { sect.style.display = "none"; return; }
+ sect.style.display = "block";
+ a.slice().reverse().forEach(m => {
+  const q = el("div");
+  q.className = "bub out";
+  q.append(el("p", m.q), el("small", fmt(m.ts)));
+  w.appendChild(q);
+  const r = el("div");
+  r.className = "bub in";
+  if (m.r) {
+   const p = el("p");
+   p.append(el("b", "المشرفين: "), m.r);
+   r.append(p, el("small", "رد المشرفين"));
+  } else {
+   r.append(el("p", "⏳ سؤالك وصل، الرد هيظهر هنا أول ما المشرفين يردوا"));
+  }
+  w.appendChild(r);
+ });
+}
 async function ask(){
  qmsg.textContent = "";
  if (!qname.value.trim() || !qtext.value.trim()) { qmsg.textContent = "اكتب اسمك وسؤالك الأول"; return; }
- const { error } = await supa.from("questions").insert({ name: qname.value.trim(), question: qtext.value.trim() });
+ const n = qname.value.trim();
+ const q = qtext.value.trim();
+ const { error } = await supa.from("questions").insert({ name: n, question: q });
  if (error) { qmsg.textContent = "السؤال ماتبعتش، جرب تاني"; return; }
+ const a = myq();
+ a.push({ n: n, q: q, ts: new Date().toISOString(), r: null });
+ saveMyq(a);
  qname.value = ""; qtext.value = "";
- qmsg.textContent = "وصل! الرد هيظهر هنا";
+ qmsg.textContent = "وصل! الرد هيظهر عندك هنا بس";
+ renderMyq();
+ syncReplies();
 }
-async function qload(){
- const { data } = await supa.from("questions").select("*").not("reply", "is", null).order("created_at", { ascending: false }).limit(20);
- qlist.innerHTML = "";
- (data || []).forEach(q => {
-  const d = el("div");
-  d.className = "bub in";
-  if (q.created_at > lastVisit()) d.appendChild(newBadge());
-  const r = el("p");
-  r.className = "rep";
-  r.append(el("b", "رد المشرفين: "), q.reply);
-  d.append(el("h2", q.name + " بيسأل:"), el("p", q.question), r);
-  qlist.appendChild(d);
+async function syncReplies(){
+ const a = myq();
+ if (!a.length) return;
+ const { data } = await supa.from("questions").select("name, question, reply").not("reply", "is", null).order("created_at", { ascending: false }).limit(100);
+ if (!data) return;
+ let changed = false;
+ a.forEach(m => {
+  if (m.r) return;
+  const hit = data.find(row => row.name === m.n && row.question === m.q);
+  if (hit) { m.r = hit.reply; changed = true; }
  });
+ if (changed) { saveMyq(a); renderMyq(); }
 }
 async function hwload(){
  const { data } = await supa.from("posts").select("*").eq("kind", "homework").order("created_at", { ascending: false }).limit(50);
@@ -192,7 +224,7 @@ function renderStudy(){
   row.className = "sub";
   const cb = el("input");
   cb.type = "checkbox";
-  cb.checked = !!checked;
+[٢٧‏/١١، ٦:١٢ ص] Instinct: cb.checked = !!checked;
   cb.onchange = () => { const st = store(); if (cb.checked) st[name] = d; else delete st[name]; save(st); renderStudy(); };
   const lb = el("label", name);
   lb.onclick = () => { cb.checked = !cb.checked; cb.onchange(); };
@@ -217,13 +249,14 @@ function addSub(){
  renderStudy();
 }
 load();
-qload();
 hwload();
+renderMyq();
+syncReplies();
 renderStudy();
 stamp();
-[٢٧‏/١١، ٦:٠٣ ص] Instinct: setInterval(load, 30000);
-setInterval(qload, 30000);
+setInterval(load, 30000);
 setInterval(hwload, 30000);
+setInterval(syncReplies, 30000);
 </script>
 </body>
 </html>
